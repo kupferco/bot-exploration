@@ -11,6 +11,8 @@ type Voice = {
 
 const App = () => {
   const [isListening, setIsListening] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const isMutedRef = useRef(isMuted);
   const [finalTranscript, setFinalTranscript] = useState('');
   const [interimTranscript, setInterimTranscript] = useState('');
   const [voices, setVoices] = useState<Voice[]>([]);
@@ -57,6 +59,10 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    isMutedRef.current = isMuted;
+  }, [isMuted]);
+
+  useEffect(() => {
     if (!('webkitSpeechRecognition' in window)) {
       alert('Speech Recognition is not supported in this browser.');
       return;
@@ -65,16 +71,13 @@ const App = () => {
     recognition.continuous = true;
     recognition.interimResults = true;
 
-    // console.log(33, isLoading)
     recognition.onresult = (event) => {
-      // console.log(44, isLoading)
       let interim = '';
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
           const finalText = event.results[i][0].transcript + ' ';
-          // console.log(55, isLoading)
           setInterimTranscript('');
-          if (!isLoading) {
+          if (!isLoading && !isMutedRef.current) {
             sendToAI(finalText);
           }
         } else {
@@ -90,24 +93,26 @@ const App = () => {
     recognition.onerror = (event) => {
       console.error('Speech Recognition Error:', event.error);
       if (['no-speech', 'audio-capture', 'not-allowed'].includes(event.error)) {
-        recognition.stop();
-        setIsListening(false);
+        // recognition.stop();
+        // setIsListening(false);
       }
     };
 
     recognitionRef.current = recognition;
 
     return () => {
-      recognitionRef.current?.stop();
-      recognitionRef.current = null;
+      console.log('RETURN')
+      //   recognitionRef.current?.stop();
+      //   recognitionRef.current = null;
     };
   }, [voices, selectedVoice, conversationHistory, queryCount, isLoading]);
 
   const handleStartListening = () => {
     console.log('START MIC');
     if (recognitionRef.current && !isListening) {
-      recognitionRef.current.start();
       setIsListening(true);
+      setIsMuted(false)
+      recognitionRef.current.start();
     }
   };
 
@@ -119,10 +124,24 @@ const App = () => {
     }
   };
 
+  const handleMuteListening = () => {
+    console.log('MUTE MIC');
+    setIsListening(false);
+    setIsMuted(true);
+  };
+
+  const handleUnMuteListening = () => {
+    setTimeout(() => {
+      console.log('UNMUTE MIC');
+      setIsListening(true);
+      setIsMuted(false);
+    }, 2000);
+  };
+
   // Interrupt the TTS and restart the listening
   const interruptTTS = () => {
     setIsPlaying(false);
-    handleStartListening();
+    handleUnMuteListening();
     if (audioRef.current) {
       audioRef.current.pause();
     }
@@ -132,7 +151,8 @@ const App = () => {
     try {
       setIsLoading(true);
       setFinalTranscript('AI Response...');
-      handleStopListening();
+      // handleStopListening();
+      handleMuteListening();
 
       const updatedConversation = [
         ...conversationHistory,
@@ -243,7 +263,7 @@ const App = () => {
 
         audio.onended = () => {
           setIsPlaying(false);
-          handleStartListening();
+          handleUnMuteListening();
         };
       } else {
         console.error('Error: No audioContent received from TTS API');
@@ -287,6 +307,16 @@ const App = () => {
         disabled={isLoading || isListening}
       >
         <Text style={styles.buttonText}>{getButtonTitle()}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.mainButton,
+          (isMuted && false) && styles.disabledButton, // Apply the disabled style if the button is disabled
+        ]}
+        onPress={isMuted ? handleUnMuteListening : handleMuteListening}
+      // disabled={!isMuted}
+      >
+        <Text style={styles.buttonText}>{isMuted ? "Mic is muted" : "Mic is open"}</Text>
       </TouchableOpacity>
 
       {/* Fixed Position Text Elements */}
