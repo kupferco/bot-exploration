@@ -8,8 +8,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "serveweb": "npx serve dist --single",
-    "buildweb": "npx expo export --platform web",
-    "deploygh": "gh-pages -d dist"
+    "web-build": "npx expo export --platform web",
+    "gh-deploy": "gh-pages -d dist",
+    "firebase-deploy": "firebase deploy"
   },
   "dependencies": {
     "@expo/metro-runtime": "~4.0.0",
