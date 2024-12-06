@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TouchableOpacity, View, Button, StyleSheet, Text, TextInput, Modal } from 'react-native';
+import { TouchableOpacity, View, Button, StyleSheet, Text, TextInput, Modal, ImageBackground } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { instruction_prompt } from './src/data/instruction_prompt'; // This can be your default prompt
 
@@ -297,6 +297,12 @@ const App = () => {
 
   return (
     <View style={styles.container}>
+
+      {/* <ImageBackground
+        source={require('./assets/iphone.svg')}
+        style={styles.background}
+        resizeMode="contain" // Resize the image to fit within the view
+      /> */}
       {/* Main Button */}
       <TouchableOpacity
         style={[
@@ -308,7 +314,7 @@ const App = () => {
       >
         <Text style={styles.buttonText}>{getButtonTitle()}</Text>
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={[
           styles.mainButton,
           (isMuted && false) && styles.disabledButton, // Apply the disabled style if the button is disabled
@@ -317,14 +323,14 @@ const App = () => {
       // disabled={!isMuted}
       >
         <Text style={styles.buttonText}>{isMuted ? "Mic is muted" : "Mic is open"}</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       {/* Fixed Position Text Elements */}
       <View style={styles.fixedContainer}>
-        <Text style={styles.text}>
+        {/* <Text style={styles.text}>
           <Text style={styles.boldText}>User said: </Text>
           {interimTranscript}
-        </Text>
+        </Text> */}
         <Text style={styles.text}>
           <Text style={styles.boldText}>Gemini response: </Text>
           {finalTranscript}
@@ -372,6 +378,11 @@ const App = () => {
 };
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1, // Fill the entire screen
+    justifyContent: 'center', // Center content vertically
+    alignItems: 'center', // Center content horizontally
+  },
   container: {
     flex: 1,
     justifyContent: 'space-between', // Space elements evenly
@@ -389,7 +400,7 @@ const styles = StyleSheet.create({
     width: '90%', // Fixed width for consistency
     fontSize: 16,
     color: 'black',
-    textAlign: 'left', // Align text to the left
+    textAlign: 'center', // Align text to the left
     // height: 50, // Fixed height to prevent shifting
     lineHeight: 20, // Adjust for readability
     overflow: 'hidden', // Prevent overflowing content
