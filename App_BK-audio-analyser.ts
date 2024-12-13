@@ -35,16 +35,30 @@ const App = () => {
   };
 
   const handleUserSpeechDetected = async (audioBlob: Blob) => {
+    console.log("Audio Blob Info:", {
+      size: audioBlob.size,
+      type: audioBlob.type,
+    });
+  
+    // Confirm that audioBlob contains data
+    if (audioBlob.size === 0) {
+      console.error("Audio blob is empty!");
+      return;
+    }
+  
     console.log("User speech detected! Sending to STT API...");
     const transcript = await sendAudioToSTT(audioBlob, speechApiKey);
     if (transcript) {
       console.log("Transcript received:", transcript);
       setFinalTranscript(transcript);
+    } else {
+      console.error("No transcript received.");
     }
   };
+  
 
   const handleHeadphonesDetected = () => {
-    console.log("User speech detected! Sending to STT API...");
+    console.log("Headphones detected");
   };
 
   const interruptTTS = () => {
